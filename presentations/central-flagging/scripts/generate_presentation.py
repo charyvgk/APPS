@@ -262,11 +262,11 @@ def slide_agenda(c, page, total):
     draw_slide_bg(c)
     y = title_block(c, "Agenda", "What we will cover")
     items = [
-        ("01", "Current state — individual project flagging"),
-        ("02", "Sequence: how per-project flags work today"),
-        ("03", "Drawbacks of isolated flag stores"),
-        ("04", "Drawbacks of the same flags copied across projects"),
-        ("05", "Target architecture — central flagging with namespaces"),
+        ("01", "Current state — individual / single-app flagging"),
+        ("02", "Pros & cons of single-app flagging"),
+        ("03", "Sequence: how per-project flags work today"),
+        ("04", "Drawbacks when the same flags are copied across apps"),
+        ("05", ".NET central flagging app (namespaced control plane)"),
         ("06", "How the central model closes every gap"),
         ("07", "Pros, operating model, and recommendation"),
     ]
@@ -388,6 +388,58 @@ def slide_individual_sequence(c, page, total):
         c.setFont(BODY, 7.5)
         c.drawString(W - 66 * mm, yy, t)
         yy -= 8 * mm
+
+    draw_footer(c, page, total)
+
+
+def slide_single_app_pros_cons(c, page, total):
+    draw_slide_bg(c)
+    y = title_block(c, "Single-App Flagging: Pros & Cons",
+                    "Honest trade-offs before you outgrow in-app toggles")
+
+    # Pros column
+    rounded_box(c, 16 * mm, 28 * mm, 125 * mm, 118 * mm, GOOD_SOFT, stroke=GOOD, radius=6)
+    c.setFillColor(GOOD)
+    c.setFont(BOLD, 14)
+    c.drawString(22 * mm, 134 * mm, "Pros")
+    pros = [
+        ("Simple to start", "appsettings / small table ships with v1"),
+        ("Low latency", "In-process evaluation, no network hop"),
+        ("No shared dependency", "App survives if a platform is down"),
+        ("Local ownership", "Team invents keys without coordination"),
+        ("Fit for one deployable", "Ideal when there is a single product surface"),
+    ]
+    yy = 122 * mm
+    for t, d in pros:
+        c.setFillColor(GOOD)
+        c.setFont(BOLD, 10)
+        c.drawString(22 * mm, yy, t)
+        c.setFillColor(SLATE)
+        c.setFont(BODY, 9)
+        c.drawString(22 * mm, yy - 5 * mm, d)
+        yy -= 16 * mm
+
+    # Cons column
+    rounded_box(c, 150 * mm, 28 * mm, 125 * mm, 118 * mm, BAD_SOFT, stroke=BAD, radius=6)
+    c.setFillColor(BAD)
+    c.setFont(BOLD, 14)
+    c.drawString(156 * mm, 134 * mm, "Cons")
+    cons = [
+        ("Fragmented truth", "N places to ask “is this flag on?”"),
+        ("Slow incident kills", "Waits on deploys / per-repo PRs"),
+        ("Inconsistent semantics", "Different caches, defaults, SDKs"),
+        ("Weak governance", "No shared RBAC / audit estate-wide"),
+        ("Cross-app drift", "Copied keys diverge in meaning & life"),
+    ]
+    yy = 122 * mm
+    for t, d in cons:
+        c.setFillColor(BAD)
+        c.setFont(BOLD, 10)
+        c.drawString(156 * mm, yy, t)
+        c.setFillColor(SLATE)
+        c.setFont(BODY, 9)
+        c.drawString(156 * mm, yy - 5 * mm, d)
+        yy -= 16 * mm
 
     draw_footer(c, page, total)
 
@@ -767,6 +819,7 @@ def build():
         slide_title,
         slide_agenda,
         slide_current_state,
+        slide_single_app_pros_cons,
         slide_individual_sequence,
         slide_drawbacks_individual,
         slide_drawbacks_duplication,

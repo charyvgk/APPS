@@ -226,7 +226,8 @@
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Diagram views">
-    <button role="tab" aria-selected="true" data-panel="individual">Individual flags</button>
+    <button role="tab" aria-selected="true" data-panel="proscons">Single-app pros/cons</button>
+    <button role="tab" aria-selected="false" data-panel="individual">Individual flags</button>
     <button role="tab" aria-selected="false" data-panel="drawbacks">Drawbacks map</button>
     <button role="tab" aria-selected="false" data-panel="central">Central solution</button>
     <button role="tab" aria-selected="false" data-panel="namespace">Namespaces</button>
@@ -234,7 +235,28 @@
   </nav>
 
   <main>
-    <section id="individual" class="panel active" role="tabpanel">
+    <section id="proscons" class="panel active" role="tabpanel">
+      <div class="card">
+        <h2>Single-app flagging — pros &amp; cons</h2>
+        <p class="lede">Keep flags inside one .NET app only while you truly have one deployable. Pros fade as soon as multiple projects must move together.</p>
+        <div class="callouts">
+          <div class="callout good"><strong>Pro · Simple to start</strong><span>appsettings / small table ships with v1.</span></div>
+          <div class="callout good"><strong>Pro · Low latency</strong><span>In-process evaluation, no network hop.</span></div>
+          <div class="callout good"><strong>Pro · No shared dependency</strong><span>App survives if a platform is down.</span></div>
+          <div class="callout good"><strong>Pro · Local ownership</strong><span>Team invents keys without coordination.</span></div>
+          <div class="callout bad"><strong>Con · Fragmented truth</strong><span>N places to ask “is this flag on?”</span></div>
+          <div class="callout bad"><strong>Con · Slow incident kills</strong><span>Waits on deploys / per-repo PRs.</span></div>
+          <div class="callout bad"><strong>Con · Inconsistent semantics</strong><span>Different caches, defaults, SDKs.</span></div>
+          <div class="callout bad"><strong>Con · Cross-app drift</strong><span>Copied keys diverge in meaning &amp; life.</span></div>
+        </div>
+        <div class="callout note" style="margin-top:1rem">
+          <strong>Decision</strong>
+          <span>Build the new <code>CentralFlagging</code> .NET control plane with namespaces = project names. Consumers use <code>CentralFlagging.Sdk</code>.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="individual" class="panel" role="tabpanel">
       <div class="card">
         <h2>Individual project flagging — sequence</h2>
         <p class="lede">Each app owns its store. Config changes are local, delayed, and hard to coordinate.</p>
@@ -403,7 +425,7 @@ flowchart TB
       history.replaceState(null, "", "#" + id);
     }
     buttons.forEach((b) => b.addEventListener("click", () => activate(b.dataset.panel)));
-    const initial = location.hash.replace("#", "") || "individual";
+    const initial = location.hash.replace("#", "") || "proscons";
     if (document.getElementById(initial)) activate(initial);
   </script>
 </body>

@@ -1,30 +1,35 @@
 # Central Flagging Mechanism — Presentation
 
-Architecture briefing on moving from per-project feature flags to a **central flagging application** with **project-name namespaces**.
+Architecture briefing for a **new .NET central flagging management application**, including honest **pros & cons of single-app flagging**.
 
 ## Artifacts
 
 | File | Description |
 |------|-------------|
-| [`Central_Flagging_Mechanism.pdf`](./Central_Flagging_Mechanism.pdf) | Full landscape PDF deck (13 slides) |
-| [`interactive-diagrams.html`](./interactive-diagrams.html) | Interactive Mermaid sequence & architecture diagrams |
+| [`Central_Flagging_Mechanism.pdf`](./Central_Flagging_Mechanism.pdf) | Landscape PDF deck |
+| [`interactive-diagrams.html`](./interactive-diagrams.html) | Interactive Mermaid diagrams + single-app pros/cons |
 | [`scripts/generate_presentation.py`](./scripts/generate_presentation.py) | Regenerates the PDF |
+
+## Related .NET solution
+
+See [`../../src/ARCHITECTURE.md`](../../src/ARCHITECTURE.md) and [`../../src/CentralFlagging.sln`](../../src/CentralFlagging.sln).
 
 ## Deck outline
 
-1. Title — Central Flagging Mechanism  
-2. Agenda  
-3. Current state — individual project flags  
-4. Sequence — individual flagging + visible drawbacks  
-5. Drawbacks of isolated flag stores  
-6. Drawbacks of the same flags copied across projects  
-7. Solution overview — central control plane  
-8. Sequence — central namespaced evaluation  
-9. Data model — namespaces = project names  
-10. Target architecture (logical view)  
-11. Closing every drawback (problem → capability map)  
-12. Pros of the central application  
-13. Recommendation / conclusion  
+1. Title
+2. Agenda
+3. Current state — individual / single-app flags
+4. **Single-app flagging: pros & cons**
+5. Sequence — individual flagging + drawbacks
+6. Drawbacks of isolated stores
+7. Drawbacks of duplicated flags across projects
+8. Central solution overview
+9. Central namespaced sequence
+10. Namespace = project name model
+11. Target architecture
+12. Closing every drawback
+13. Pros of central application
+14. Recommendation
 
 ## Regenerate PDF
 
@@ -32,13 +37,3 @@ Architecture briefing on moving from per-project feature flags to a **central fl
 pip install reportlab
 python3 presentations/central-flagging/scripts/generate_presentation.py
 ```
-
-## Interactive diagrams
-
-Open `interactive-diagrams.html` in a browser (Mermaid loads from CDN). Tabs cover:
-
-- Individual flags sequence + drawbacks  
-- Duplicated-flag drift flowchart  
-- Central solution sequence + expandable pros  
-- Namespace model  
-- Drawback → capability coverage table  
