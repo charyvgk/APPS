@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Central Flagging Mechanism — Interactive Diagrams</title>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "base",
+      themeVariables: {
+        primaryColor: "#0E7C7B",
+        primaryTextColor: "#0B1F2A",
+        primaryBorderColor: "#065A59",
+        lineColor: "#334155",
+        secondaryColor: "#E6F4F4",
+        tertiaryColor: "#F7FAFB",
+        background: "#F7FAFB",
+        mainBkg: "#E6F4F4",
+        nodeBorder: "#0E7C7B",
+        clusterBkg: "#F7FAFB",
+        titleColor: "#0B1F2A",
+        edgeLabelBackground: "#F7FAFB",
+        actorBkg: "#E6F4F4",
+        actorBorder: "#0E7C7B",
+        actorTextColor: "#0B1F2A",
+        signalColor: "#334155",
+        labelBoxBkgColor: "#FEF3C7",
+        noteBkgColor: "#FEE2E2",
+        noteTextColor: "#B91C1C",
+      },
+      sequence: { mirrorActors: false, messageMargin: 36 },
+      flowchart: { curve: "basis", htmlLabels: true },
+    });
+  </script>
+  <style>
+    :root {
+      --ink: #0b1f2a;
+      --teal: #0e7c7b;
+      --teal-dark: #065a59;
+      --teal-light: #e6f4f4;
+      --amber: #d97706;
+      --amber-soft: #fef3c7;
+      --surface: #f7fafb;
+      --slate: #334155;
+      --muted: #64748b;
+      --bad: #b91c1c;
+      --bad-soft: #fee2e2;
+      --good: #047857;
+      --good-soft: #d1fae5;
+      --line: #cbd5e1;
+      --font: "Segoe UI", "Liberation Sans", "Noto Sans", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #dceef0 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #e8f2f2 0%, transparent 50%),
+        var(--surface);
+      line-height: 1.45;
+    }
+    header {
+      padding: 2.5rem 1.5rem 1.25rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    header .eyebrow {
+      color: var(--amber);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+    header h1 {
+      font-size: clamp(1.75rem, 3vw, 2.4rem);
+      margin: 0.35rem 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 62ch;
+    }
+    nav.tabs {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      backdrop-filter: blur(10px);
+      background: color-mix(in srgb, var(--surface) 85%, white);
+      border-bottom: 1px solid var(--line);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    nav.tabs button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--slate);
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.9rem;
+      transition: background 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease;
+    }
+    nav.tabs button:hover { border-color: var(--teal); color: var(--teal-dark); transform: translateY(-1px); }
+    nav.tabs button[aria-selected="true"] {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: white;
+    }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    section.panel {
+      display: none;
+      animation: fade 280ms ease;
+    }
+    section.panel.active { display: block; }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+    .card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.25rem 1.25rem 0.5rem;
+      box-shadow: 0 10px 30px rgba(11, 31, 42, 0.04);
+    }
+    .card h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.25rem;
+    }
+    .card .lede {
+      color: var(--muted);
+      margin: 0 0 1rem;
+      font-size: 0.95rem;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+    }
+    .callouts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin: 1rem 0 0.5rem;
+    }
+    .callout {
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      border: 1px solid transparent;
+    }
+    .callout.bad { background: var(--bad-soft); border-color: #fecaca; }
+    .callout.good { background: var(--good-soft); border-color: #a7f3d0; }
+    .callout.note { background: var(--amber-soft); border-color: #fde68a; }
+    .callout strong { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; }
+    .callout span { font-size: 0.85rem; color: var(--slate); }
+    .map-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    .map-table th, .map-table td {
+      text-align: left;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    .map-table th { background: var(--ink); color: white; }
+    .map-table tr:nth-child(even) td { background: var(--teal-light); }
+    .map-table .bad-text { color: var(--bad); font-weight: 700; }
+    .map-table .good-text { color: var(--good); }
+    details.pros {
+      margin-top: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: white;
+      overflow: hidden;
+    }
+    details.pros summary {
+      cursor: pointer;
+      padding: 0.85rem 1rem;
+      font-weight: 700;
+      list-style: none;
+      background: var(--teal-light);
+    }
+    details.pros summary::-webkit-details-marker { display: none; }
+    details.pros[open] summary { border-bottom: 1px solid var(--line); }
+    details.pros ul { margin: 0; padding: 0.75rem 1.25rem 1rem 2rem; color: var(--slate); }
+    details.pros li { margin: 0.35rem 0; }
+    footer {
+      max-width: 1100px;
+      margin: 0 auto 2rem;
+      padding: 0 1.5rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Architecture · Interactive diagrams</div>
+    <h1>Central Flagging Mechanism</h1>
+    <p>
+      Explore the individual-flag failure mode, then the namespaced central control plane that
+      closes every drawback. Click tabs to switch diagrams; expand pros on the solution view.
+    </p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Diagram views">
+    <button role="tab" aria-selected="true" data-panel="individual">Individual flags</button>
+    <button role="tab" aria-selected="false" data-panel="drawbacks">Drawbacks map</button>
+    <button role="tab" aria-selected="false" data-panel="central">Central solution</button>
+    <button role="tab" aria-selected="false" data-panel="namespace">Namespaces</button>
+    <button role="tab" aria-selected="false" data-panel="coverage">Pros coverage</button>
+  </nav>
+
+  <main>
+    <section id="individual" class="panel active" role="tabpanel">
+      <div class="card">
+        <h2>Individual project flagging — sequence</h2>
+        <p class="lede">Each app owns its store. Config changes are local, delayed, and hard to coordinate.</p>
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Client
+    participant App as App Service
+    participant LDB as Local Flag DB
+    participant Repo as Config Repo
+    actor Ops as Ops / Dev
+
+    Client->>App: API request
+    App->>LDB: Query / load snapshot
+    LDB-->>App: Boolean / variant
+    Note over App: Evaluate in-process<br/>No shared audit trail
+    Ops->>Repo: Edit flags (PR / console)
+    Repo-->>App: Deploy config (async lag)
+    App-->>Client: Response after local eval
+    Note over Client,Ops: Drawbacks: drift, slow kill, no cross-app truth
+        </div>
+        <div class="callouts">
+          <div class="callout bad"><strong>Fragmented truth</strong><span>N sources of “is this flag on?”</span></div>
+          <div class="callout bad"><strong>Deploy lag</strong><span>Incident kills wait on pipelines.</span></div>
+          <div class="callout bad"><strong>No governance</strong><span>Weak RBAC and audit across apps.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="drawbacks" class="panel" role="tabpanel">
+      <div class="card">
+        <h2>Drawbacks of duplicated “same” flags</h2>
+        <p class="lede">Copying keys across projects looks shared — until meanings and lifecycles diverge.</p>
+        <div class="mermaid">
+flowchart LR
+  subgraph P1["Project: Payments"]
+    F1["checkout_v2 = true"]
+  end
+  subgraph P2["Project: Lending"]
+    F2["checkout_v2 = false"]
+  end
+  subgraph P3["Project: Onboarding"]
+    F3["checkout_v2 retired?"]
+  end
+  F1 -.->|same name| F2
+  F2 -.->|same name| F3
+  F1 --> D1["Semantic drift"]
+  F2 --> D2["Partial rollout"]
+  F3 --> D3["Lifecycle mismatch"]
+  D1 --> X["Broken cross-product journeys"]
+  D2 --> X
+  D3 --> X
+        </div>
+        <div class="callouts">
+          <div class="callout bad"><strong>Semantic drift</strong><span>Same key, different meaning/default.</span></div>
+          <div class="callout bad"><strong>Ownership fog</strong><span>No single owner for cross-cutting flags.</span></div>
+          <div class="callout bad"><strong>Analytics noise</strong><span>Inconsistent experiment tagging.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="central" class="panel" role="tabpanel">
+      <div class="card">
+        <h2>Central flagging — sequence with pros</h2>
+        <p class="lede">One API of record; SDKs evaluate with a project namespace; every change is audited.</p>
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Client
+    participant SDK as App + SDK
+    participant API as Central Flag API
+    participant NS as Namespace Store
+    actor Ops as Admin / Ops
+    participant Audit as Audit Log
+
+    Client->>SDK: API request
+    SDK->>API: eval(ns=payments, key=checkout_v2)
+    API->>NS: Read namespaced rules
+    NS-->>API: Definition + targeting
+    API-->>SDK: Decision + reason codes
+    API->>Audit: Evaluation sample
+    Ops->>API: Toggle / progressive rollout (RBAC)
+    API->>Audit: Change event
+    SDK-->>Client: Consistent response
+    Note over Client,Audit: Pros: one truth, fast kills, governance, consistent SDK
+        </div>
+        <details class="pros" open>
+          <summary>Interactive pros checklist (expand/collapse)</summary>
+          <ul>
+            <li><strong>Consistency</strong> — identical evaluation semantics across namespaces</li>
+            <li><strong>Speed</strong> — kill switches without waiting on app deploys</li>
+            <li><strong>Safety</strong> — RBAC, approvals, environment promotion</li>
+            <li><strong>Clarity</strong> — namespace ownership is explicit</li>
+            <li><strong>Observability</strong> — central change + evaluation audit</li>
+            <li><strong>Reuse</strong> — targeting, segments, schedules built once</li>
+          </ul>
+        </details>
+        <p class="hint">Tip: toggle the pros panel, then switch to “Pros coverage” to see drawback → capability mapping.</p>
+      </div>
+    </section>
+
+    <section id="namespace" class="panel" role="tabpanel">
+      <div class="card">
+        <h2>Namespaces = project names</h2>
+        <p class="lede">Isolation by default; intentional sharing via global namespace or explicit references.</p>
+        <div class="mermaid">
+flowchart TB
+  Org["Organization flag.company.internal"]
+  Org --> Pay["ns:payments"]
+  Org --> Len["ns:lending"]
+  Org --> Onb["ns:onboarding"]
+  Org --> Glob["ns:global"]
+  Pay --> P1["checkout_v2"]
+  Pay --> P2["kill.gateway"]
+  Len --> L1["risk_model_b"]
+  Len --> L2["checkout_v2 → ref optional"]
+  Onb --> O1["kyc_async"]
+  Glob --> G1["maintenance_mode"]
+  Glob --> G2["kill.edge_cdn"]
+        </div>
+        <div class="callouts">
+          <div class="callout good"><strong>Hard isolation</strong><span>SDK always scopes to its project namespace.</span></div>
+          <div class="callout good"><strong>Intentional share</strong><span>Global kill switches live in ns:global.</span></div>
+          <div class="callout note"><strong>Optional refs</strong><span>Cross-project reuse only when explicitly referenced.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="coverage" class="panel" role="tabpanel">
+      <div class="card">
+        <h2>Every drawback → central capability</h2>
+        <p class="lede">Conclusion: the central namespaced platform is not a preference — it is the coverage map for the failure modes above.</p>
+        <table class="map-table">
+          <thead>
+            <tr><th>Drawback today</th><th>Fulfilled by central flagging</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="bad-text">Fragmented truth</td><td class="good-text">Single platform of record with namespaced keys</td></tr>
+            <tr><td class="bad-text">Deploy toil / slow kills</td><td class="good-text">Admin API + UI toggles without app redeploy</td></tr>
+            <tr><td class="bad-text">SDK inconsistency</td><td class="good-text">One SDK / one evaluation contract</td></tr>
+            <tr><td class="bad-text">Weak governance</td><td class="good-text">RBAC, approvals, environments, audit log</td></tr>
+            <tr><td class="bad-text">Copied flag drift</td><td class="good-text">One definition; subscribe by namespace/ref</td></tr>
+            <tr><td class="bad-text">Partial cross-app rollout</td><td class="good-text">Coordinated targeting or ns:global flags</td></tr>
+            <tr><td class="bad-text">Ownership fog</td><td class="good-text">Namespace owners + mandatory metadata</td></tr>
+            <tr><td class="bad-text">Analytics noise</td><td class="good-text">Stable flag IDs and reason codes</td></tr>
+          </tbody>
+        </table>
+        <div class="callout good">
+          <strong>Recommendation</strong>
+          <span>Adopt a central flagging application with project-name namespaces. Migrate one critical namespace first, then roll out by project.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Companion to <code>Central_Flagging_Mechanism.pdf</code> · Senior Software Architect briefing
+  </footer>
+
+  <script>
+    const buttons = [...document.querySelectorAll("nav.tabs button")];
+    const panels = [...document.querySelectorAll("section.panel")];
+    function activate(id) {
+      buttons.forEach((b) => b.setAttribute("aria-selected", String(b.dataset.panel === id)));
+      panels.forEach((p) => p.classList.toggle("active", p.id === id));
+      history.replaceState(null, "", "#" + id);
+    }
+    buttons.forEach((b) => b.addEventListener("click", () => activate(b.dataset.panel)));
+    const initial = location.hash.replace("#", "") || "individual";
+    if (document.getElementById(initial)) activate(initial);
+  </script>
+</body>
+</html>
