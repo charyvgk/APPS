@@ -1,0 +1,16 @@
+{
+  "name": "Central Flagging (.NET 8)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "CentralFlagging API",
+      "command": "dotnet run --project src/CentralFlagging.Api --no-launch-profile --urls http://0.0.0.0:5080"
+    }
+  ],
+  "ports": [5080]
+}
