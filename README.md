@@ -8,6 +8,7 @@ The application has one entry (the API gateway), one identity model (Microsoft E
 
 | Document | What it decides |
 | --- | --- |
+| [Leadership briefing (Word)](docs/presentation/Application-Architecture-Briefing.docx) | Presentation for Security, Monitoring, and department leadership: architecture, each component, and why it was chosen |
 | [System context](docs/01-system-context.md) | Where clients, the gateway, services, and clusters sit in Azure, hybrid, and on-premises |
 | [Gateway](docs/02-gateway.md) | Why the gateway exists and what it owns |
 | [Upstream and downstream](docs/03-upstream-and-downstream.md) | Services this application owns, and systems outside it |
